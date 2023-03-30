@@ -15,17 +15,25 @@ class Student:
                 lecturer.lect_grades[course] = [lect_grade]
         else:
             return 'Ошибка'    
-        
+
+    def avrg_estimate(self):
+        total_grade = 0
+        lenght = 0
+        for v in self.grades.values():
+            lenght += len(v)
+            for el in v:
+                total_grade += el
+        avrg_grade = float(total_grade / lenght)
+        return avrg_grade    
+
     def __str__(self):
         result = f"""Имя: {self.name} 
 Фамилия: {self.surname} 
-Средняя оценка за домашние задания: {self.grades.values()} 
+Средняя оценка за домашние задания: {best_student.avrg_estimate()}
 Курсы в процессе изучения: {', '.join(self.courses_in_progress)} 
 Завершенные курсы: {', '.join(self.finished_courses)}
         """
         return result
-
-a = f''       
 
 class Mentor:
     def __init__(self, name, surname):
@@ -58,8 +66,6 @@ class Reviewer(Mentor):
         result = f'Имя: {self.name} \nФамилия: {self.surname}'
         return result
                 
-prep = Lecturer('Имя', 'Фамилие', 'lect_gender')
-                
 best_student = Student('Ruoy', 'Eman', 'your_gender')
 best_student.courses_in_progress += ['Python']
 best_student.courses_in_progress += ['GIT']
@@ -90,3 +96,5 @@ print()
 print(cool_reviewer)
 # print()
 # print(cool_lecturer)
+print()
+# print(best_student.avrg_estimate)
