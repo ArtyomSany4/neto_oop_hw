@@ -16,7 +16,7 @@ class Student:
         else:
             return 'Ошибка'    
 
-    def avrg_estimate(self):
+    def _avrg_estimate(self):
         total_grade = 0
         lenght = 0
         for v in self.grades.values():
@@ -29,28 +29,46 @@ class Student:
     def __str__(self):
         result = f"""Имя: {self.name} 
 Фамилия: {self.surname} 
-Средняя оценка за домашние задания: {best_student.avrg_estimate()}
+Средняя оценка за домашние задания: {self._avrg_estimate()}
 Курсы в процессе изучения: {', '.join(self.courses_in_progress)} 
 Завершенные курсы: {', '.join(self.finished_courses)}
         """
         return result
+
+
 
 class Mentor:
     def __init__(self, name, surname):
         self.name = name
         self.surname = surname
         self.courses_attached = []
+   
         
+   
 class Lecturer(Mentor):
-    def __init__(self, name, surname, gender):
-       self.lect_grades = {}
-       self.courses_attached = []
+    def __init__(self, name, surname):
+        self.name = name
+        self.surname = surname
+        self.courses_attached = []
+        self.lect_grades = {}
+        self.courses_attached = []
+
+    def _lect_avrg_estimate(self):
+        if len(self.lect_grades) == 0:
+            avrg_grade = 'Оценок еще не ставили!'
+        else:
+            avrg_grade = sum(self.lect_grades.values(), [])
+
+        return avrg_grade  
 
     def __str__(self):
         result = f"""Имя: {self.name} 
 Фамилия: {self.surname}
-Средняя оценка за лекции: """
+Средняя оценка за лекции: {self._lect_avrg_estimate}
+    """
         return result
+
+
 
 class Reviewer(Mentor):
     def rate_hw(self, student, course, grade):
@@ -65,36 +83,41 @@ class Reviewer(Mentor):
     def __str__(self):
         result = f'Имя: {self.name} \nФамилия: {self.surname}'
         return result
-                
+
+# Создаем студента и накидываем ему курсов 
 best_student = Student('Ruoy', 'Eman', 'your_gender')
 best_student.courses_in_progress += ['Python']
 best_student.courses_in_progress += ['GIT']
 best_student.finished_courses += ['SQL']
- 
+
+# создаем ревьюера и ему курсов
 cool_reviewer = Reviewer('Some', 'Buddy')
 cool_reviewer.courses_attached += ['Python']
 cool_reviewer.courses_attached += ['GIT']
 
-cool_lecturer = Lecturer('Cool', 'Mentor', 'lect_gender')
+# создаем лектора и ему курс
+cool_lecturer = Lecturer('Cool', 'Lecturer')
 cool_lecturer.courses_attached += ['Python']
- 
+
+# создаем второго лектора
+scnd_lecturer = Lecturer('Second', 'Lecturer')
+scnd_lecturer.courses_attached += ['Python']
+
+# ставим оценки за домашку студенту best_student
 cool_reviewer.rate_hw(best_student, 'Python', 10)
 cool_reviewer.rate_hw(best_student, 'Python', 10)
 cool_reviewer.rate_hw(best_student, 'Python', 10)
 cool_reviewer.rate_hw(best_student, 'GIT', 10)
 cool_reviewer.rate_hw(best_student, 'GIT', 8)
 
+# ставим оценки лектору за курс
 best_student.rate_lector(cool_lecturer, 'Python', 9)
 best_student.rate_lector(cool_lecturer, 'JS', 9)
+
+# ставим оценки второму лектору
+best_student.rate_lector(scnd_lecturer, 'Python', 2)
  
-print(best_student.grades)
-print()
-print(cool_lecturer.lect_grades)
-print()
 print(best_student)
-print()
 print(cool_reviewer)
-# print()
-# print(cool_lecturer)
-print()
-# print(best_student.avrg_estimate)
+print(scnd_lecturer)
+
