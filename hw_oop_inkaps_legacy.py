@@ -16,7 +16,7 @@ class Student:
         else:
             return 'Ошибка'    
 
-    def _avrg_estimate(self):
+    def calculate_avrg_lect_estimete(self):
         total_grade = 0
         lenght = 0
         if len(self.grades) == 0:
@@ -33,7 +33,7 @@ class Student:
     def __str__(self):
         result = f"""Имя: {self.name} 
 Фамилия: {self.surname} 
-Средняя оценка за домашние задания: {self._avrg_estimate()}
+Средняя оценка за домашние задания: {self.calculate_avrg_lect_estimete()}
 Курсы в процессе изучения: {', '.join(self.courses_in_progress)} 
 Завершенные курсы: {', '.join(self.finished_courses)}
         """
@@ -57,7 +57,7 @@ class Lecturer(Mentor):
         self.lect_grades = {}
         self.courses_attached = []
 
-    def _avrg_estimate(self):
+    def calculate_avrg_lect_estimete(self):
         total_grade = 0
         lenght = 0
         if len(self.lect_grades) == 0:
@@ -73,7 +73,7 @@ class Lecturer(Mentor):
     def __str__(self):
         result = f"""Имя: {self.name} 
 Фамилия: {self.surname}
-Средняя оценка за лекции: {self._avrg_estimate()}
+Средняя оценка за лекции: {self.calculate_avrg_lect_estimete()}
     """
         return result
 
@@ -83,7 +83,7 @@ class Lecturer(Mentor):
         if not isinstance(other, Student):
             err = 'Что-то пошло не так. Сравнить можно только лекторов и студентов по средней оценке!'
             return err
-        return self._avrg_estimate() < other._avrg_estimate()
+        return self.calculate_avrg_lect_estimete() < other.calculate_avrg_lect_estimete()
 
 # при переназначении __lt__ работает только <, пришлось переназначать и __gt__.
 # почему так, не разобрался. в уроке переназначали только lt
@@ -91,7 +91,7 @@ class Lecturer(Mentor):
         if not isinstance(other, Student):
             err = 'Что-то пошло не так. Сравнить можно только лекторов и студентов по средней оценке!'
             return err
-        return self._avrg_estimate() > other._avrg_estimate()
+        return self.calculate_avrg_lect_estimete() > other.calculate_avrg_lect_estimete()
 
 
 class Reviewer(Mentor):
@@ -111,7 +111,7 @@ class Reviewer(Mentor):
 
 # 1. для подсчета средней оценки за домашние задания по всем студентам в рамках
 # конкретного курса (в качестве аргументов принимаем список студентов и название курса);
-def avrg_hw_estimete(student_list, course_name):
+def calculate_avrg_hw_estimete(student_list, course_name):
     total_hw_grade = 0
     count = 0
     for student in student_list:
@@ -125,9 +125,21 @@ def avrg_hw_estimete(student_list, course_name):
         result = f'Средняя оценка за ДЗ по всем студентам по курсу {course_name}: {total_hw_grade/count}'
     return result 
 
-# для подсчета средней оценки за лекции всех лекторов в рамках курса 
+# 2. для подсчета средней оценки за лекции всех лекторов в рамках курса 
 # (в качестве аргумента принимаем список лекторов и название курса)
-
+def calculate_avrg_grade_all_lect(lect_list, course_name):
+    total_lect_grade = 0
+    count = 0
+    for lect in lect_list:
+        if len(lect.lect_grades) > 0:
+            if course_name in lect.lect_grades.keys():
+                total_lect_grade += sum(lect.lect_grades[course_name])
+                count += len(lect.lect_grades[course_name])
+    if count == 0:
+        result = 'По указанному списку и курсу совпадений нет!'
+    else:
+        result = f'Средняя оценка за лекции списка лекторов по курсу {course_name}: {total_lect_grade/count}'
+    return result    
 
 
 # Создайте по 2 экземпляра каждого класса
@@ -190,4 +202,6 @@ print(f'Второй ревьюер: {scnd_reviewer}')
 print(f'Первый лектор: {cool_lecturer}')
 print(f'Второй лектор: {scnd_lecturer}')
 # Функция подсчета средней оценки за домашние задания
-print(avrg_hw_estimete([best_student, scnd_student], 'Python'))
+print(calculate_avrg_hw_estimete([best_student, scnd_student], 'Python'))
+# Функция подсчета средней оценки за лекции
+print(calculate_avrg_grade_all_lect([cool_lecturer, scnd_lecturer], 'Python'))
