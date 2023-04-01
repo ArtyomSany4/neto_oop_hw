@@ -19,12 +19,16 @@ class Student:
     def _avrg_estimate(self):
         total_grade = 0
         lenght = 0
-        for v in self.grades.values():
-            lenght += len(v)
-            for el in v:
-                total_grade += el
-        avrg_grade = float(total_grade / lenght)
+        if len(self.grades) == 0:
+            avrg_grade = 'Оценок еще не ставили!'
+        else: 
+            for v in self.grades.values():
+                lenght += len(v)
+                for el in v:
+                    total_grade += el
+            avrg_grade = total_grade / lenght
         return avrg_grade    
+
 
     def __str__(self):
         result = f"""Имя: {self.name} 
@@ -53,21 +57,41 @@ class Lecturer(Mentor):
         self.lect_grades = {}
         self.courses_attached = []
 
-    def _lect_avrg_estimate(self):
+    def _avrg_estimate(self):
+        total_grade = 0
+        lenght = 0
         if len(self.lect_grades) == 0:
             avrg_grade = 'Оценок еще не ставили!'
-        else:
-            avrg_grade = sum(self.lect_grades.values(), [])
-
-        return avrg_grade  
-
+        else: 
+            for v in self.lect_grades.values():
+                lenght += len(v)
+                for el in v:
+                    total_grade += el
+            avrg_grade = float(total_grade / lenght)
+        return avrg_grade    
+    
     def __str__(self):
         result = f"""Имя: {self.name} 
 Фамилия: {self.surname}
-Средняя оценка за лекции: {self._lect_avrg_estimate}
+Средняя оценка за лекции: {self._avrg_estimate()}
     """
         return result
 
+# Заводим функцию сравнения лекторов и студентов по средней оценке
+# Делаю для лектора -> self тут лектор
+    def __lt__(self, other):
+        if not isinstance(other, Student):
+            err = 'Что-то пошло не так. Сравнить можно только лекторов и студентов по средней оценке!'
+            return err
+        return self._avrg_estimate() < other._avrg_estimate()
+
+# при переназначении __lt__ работает только <, пришлось переназначать и __gt__.
+# почему так, не разобрался. в уроке переназначали только lt
+    def __gt__(self, other):
+        if not isinstance(other, Student):
+            err = 'Что-то пошло не так. Сравнить можно только лекторов и студентов по средней оценке!'
+            return err
+        return self._avrg_estimate() > other._avrg_estimate()
 
 
 class Reviewer(Mentor):
@@ -84,40 +108,86 @@ class Reviewer(Mentor):
         result = f'Имя: {self.name} \nФамилия: {self.surname}'
         return result
 
-# Создаем студента и накидываем ему курсов 
+
+# 1. для подсчета средней оценки за домашние задания по всем студентам в рамках
+# конкретного курса (в качестве аргументов принимаем список студентов и название курса);
+def avrg_hw_estimete(student_list, course_name):
+    total_hw_grade = 0
+    count = 0
+    for student in student_list:
+        if len(student.grades) > 0:
+            if course_name in student.grades.keys():
+                total_hw_grade += sum(student.grades[course_name])
+                count += len(student.grades[course_name])
+    if count == 0:
+        result = 'По указанному списку и курсу совпадений нет!'
+    else:
+        result = f'Средняя оценка за ДЗ по всем студентам по курсу {course_name}: {total_hw_grade/count}'
+    return result 
+
+# для подсчета средней оценки за лекции всех лекторов в рамках курса 
+# (в качестве аргумента принимаем список лекторов и название курса)
+
+
+
+# Создайте по 2 экземпляра каждого класса
+
+# Создаем первого студента и накидываем ему курсов 
 best_student = Student('Ruoy', 'Eman', 'your_gender')
 best_student.courses_in_progress += ['Python']
 best_student.courses_in_progress += ['GIT']
 best_student.finished_courses += ['SQL']
+# Создаем второго студента и накидываем ему курсов 
+scnd_student = Student('Second', 'Student', 'your_gender')
+scnd_student.courses_in_progress += ['Проджект-менеджер', 'Python']
+scnd_student.courses_in_progress += ['DATA science']
+scnd_student.finished_courses += ['Арифметика']
 
-# создаем ревьюера и ему курсов
+# Создаем первого ревьюера и ему курсов
 cool_reviewer = Reviewer('Some', 'Buddy')
-cool_reviewer.courses_attached += ['Python']
+cool_reviewer.courses_attached += ['DATA science']
 cool_reviewer.courses_attached += ['GIT']
+# Создаем второго ревьюера и ему курсов
+scnd_reviewer = Reviewer('Second', 'Reviewer')
+scnd_reviewer.courses_attached += ['Python']
+scnd_reviewer.courses_attached += ['GIT', 'Арифметика']
 
-# создаем лектора и ему курс
+# Создаем лектора и ему курс
 cool_lecturer = Lecturer('Cool', 'Lecturer')
 cool_lecturer.courses_attached += ['Python']
-
-# создаем второго лектора
+# Создаем второго лектора и ему курсов
 scnd_lecturer = Lecturer('Second', 'Lecturer')
-scnd_lecturer.courses_attached += ['Python']
+scnd_lecturer.courses_attached += ['Python', 'SQL']
 
-# ставим оценки за домашку студенту best_student
+
+
+# вызовите все созданные методы
+
+# ставим оценки лекторам за курсы
+best_student.rate_lector(cool_lecturer, 'Python', 10)
+scnd_student.rate_lector(cool_lecturer, 'Python', 9)
+best_student.rate_lector(scnd_lecturer, 'SQL', 2)
+
+# ставим оценки за домашку студентам
 cool_reviewer.rate_hw(best_student, 'Python', 10)
-cool_reviewer.rate_hw(best_student, 'Python', 10)
-cool_reviewer.rate_hw(best_student, 'Python', 10)
-cool_reviewer.rate_hw(best_student, 'GIT', 10)
+scnd_reviewer.rate_hw(best_student, 'Python', 9)
+scnd_reviewer.rate_hw(best_student, 'Python', 8)
+cool_reviewer.rate_hw(scnd_student, 'Python', 7)
+scnd_reviewer.rate_hw(scnd_student, 'Python', 3)
+cool_reviewer.rate_hw(best_student, 'Python', 5)
+scnd_reviewer.rate_hw(best_student, 'GIT', 9)
 cool_reviewer.rate_hw(best_student, 'GIT', 8)
 
-# ставим оценки лектору за курс
-best_student.rate_lector(cool_lecturer, 'Python', 9)
-best_student.rate_lector(cool_lecturer, 'JS', 9)
 
-# ставим оценки второму лектору
-best_student.rate_lector(scnd_lecturer, 'Python', 2)
- 
-print(best_student)
-print(cool_reviewer)
-print(scnd_lecturer)
+print('Сравниваем студента и лектора по средней оценке (больше):', best_student > cool_lecturer)
+print('Сравниваем студента и лектора по средней оценке (меньше):', best_student < cool_lecturer)
 
+# Принтуем все созданные экземпляры
+print(f'Первый студент: {best_student}')
+print(f'Второй студент: {scnd_student}')
+print(f'Первый ревьюер: {cool_reviewer}')
+print(f'Второй ревьюер: {scnd_reviewer}')
+print(f'Первый лектор: {cool_lecturer}')
+print(f'Второй лектор: {scnd_lecturer}')
+# Функция подсчета средней оценки за домашние задания
+print(avrg_hw_estimete([best_student, scnd_student], 'Python'))
